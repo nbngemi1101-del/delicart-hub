@@ -1,0 +1,6 @@
+{
+  "name": "delicart-hub",
+  "version": "1.0.0",
+  "description": "DELICART Command Hub — Dashboard nội bộ",
+  "engines": { "node": ">=18" }
+}

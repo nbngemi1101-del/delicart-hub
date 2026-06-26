@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DELICART Command Hub</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0/dist/chart.umd.js" integrity="sha384-iU8HYtnGQ8Cy4zl7gbNMOhsDTTKX02BTXptVP/vqAWIaTfM7isw76iyZCsjL2eVi" crossorigin="anonymous"></script>
+<style>
+:root{color-scheme:light}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f1f3f4;color:#202124;font-size:14px}
+
+.header{background:#fff;border-bottom:1px solid #e8eaed;padding:12px 24px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;position:sticky;top:0;z-index:100}
+.logo{font-size:17px;font-weight:700;color:#1a73e8;white-space:nowrap}
+.header-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.date-row{display:flex;align-items:center;gap:6px}
+.pbtn{padding:5px 12px;border:1px solid #dadce0;border-radius:20px;background:#fff;cursor:pointer;font-size:12px;color:#3c4043;transition:.15s}
+.pbtn:hover{background:#f8f9fa}.pbtn.active{background:#1a73e8;color:#fff;border-color:#1a73e8}
+.di{padding:5px 8px;border:1px solid #dadce0;border-radius:6px;font-size:12px;height:30px}
+.abtn{padding:5px 10px;border:none;border-radius:6px;background:#1a73e8;color:#fff;cursor:pointer;font-size:12px}
+.user-info{font-size:12px;color:#5f6368}
+.logout{padding:4px 10px;border:1px solid #dadce0;border-radius:6px;background:#fff;cursor:pointer;font-size:12px;color:#c5221f}
+
+.tabs{background:#fff;border-bottom:1px solid #e8eaed;padding:0 24px;display:flex}
+.tbtn{padding:12px 18px;border:none;background:none;cursor:pointer;font-size:13px;font-weight:500;color:#5f6368;border-bottom:3px solid transparent;transition:.15s;white-space:nowrap}
+.tbtn:hover{color:#1a73e8;background:#f8f9fa}.tbtn.active{color:#1a73e8;border-bottom-color:#1a73e8}
+
+.content{padding:18px;max-width:1400px;margin:0 auto}
+.tp{display:none}.tp.active{display:block}
+
+.loading{text-align:center;padding:60px;color:#5f6368}
+.spin{width:36px;height:36px;border:3px solid #e8eaed;border-top-color:#1a73e8;border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 12px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.ebox{background:#fce8e6;border:1px solid #f5c6c4;border-radius:8px;padding:14px;color:#c5221f;margin:12px 0;font-size:13px}
+
+.kg{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+.kc{background:#fff;border-radius:10px;padding:16px 18px;border:1px solid #e8eaed;border-left:4px solid var(--a)}
+.kc.b{--a:#1a73e8}.kc.g{--a:#34a853}.kc.y{--a:#fbbc04}.kc.r{--a:#ea4335}
+.kl{font-size:11px;color:#5f6368;font-weight:600;text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px}
+.kv{font-size:22px;font-weight:700;color:#202124;line-height:1.2;margin-bottom:3px}
+.ks{font-size:11px;color:#5f6368}
+
+.cg{display:grid;grid-template-columns:3fr 2fr;gap:12px;margin-bottom:16px}
+.cg2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+.cc{background:#fff;border-radius:10px;padding:16px 18px;border:1px solid #e8eaed}
+.ct{font-size:13px;font-weight:600;margin-bottom:12px;color:#3c4043}
+.cb{position:relative;height:210px}
+
+.tc{background:#fff;border-radius:10px;padding:16px 18px;border:1px solid #e8eaed;margin-bottom:16px;overflow-x:auto}
+.tt{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.tn{font-size:13px;font-weight:600;color:#3c4043}
+.ts{font-size:11px;color:#5f6368}
+table.dt{width:100%;border-collapse:collapse;min-width:680px}
+table.dt th{padding:8px 10px;font-size:10px;color:#5f6368;font-weight:700;text-transform:uppercase;border-bottom:2px solid #e8eaed;background:#f8f9fa;text-align:left;white-space:nowrap}
+table.dt td{padding:8px 10px;border-bottom:1px solid #f1f3f4;font-size:12px;color:#3c4043}
+table.dt tr:hover td{background:#f8f9fa}
+table.dt .r{text-align:right;font-variant-numeric:tabular-nums}
+table.dt .nm{max-width:200px;word-break:break-word;line-height:1.4}
+.b0{display:inline-block;padding:2px 7px;border-radius:10px;font-size:10px;font-weight:700}
+.bon{background:#e6f4ea;color:#137333}.bof{background:#fce8e6;color:#c5221f}
+.sep{font-size:10px;font-weight:700;color:#9aa0a6;text-transform:uppercase;letter-spacing:.5px;padding:4px 0 6px;border-bottom:1px solid #f1f3f4;margin-bottom:12px}
+
+@media(max-width:900px){.kg{grid-template-columns:repeat(2,1fr)}.cg,.cg2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<!-- ── Header ── -->
+<div class="header">
+  <div class="logo">🏪 DELICART Command Hub</div>
+  <div class="header-right">
+    <div class="date-row">
+      <button class="pbtn" onclick="preset(7,this)">7 ngày</button>
+      <button class="pbtn active" onclick="preset(30,this)">30 ngày</button>
+      <button class="pbtn" onclick="preset(90,this)">90 ngày</button>
+      <input type="date" id="df" class="di">
+      <span style="color:#9aa0a6;font-size:11px">→</span>
+      <input type="date" id="dt" class="di">
+      <button class="abtn" onclick="apply()">Áp dụng</button>
+    </div>
+    <span class="user-info" id="uinfo"></span>
+    <button class="logout" onclick="logout()">Đăng xuất</button>
+  </div>
+</div>
+
+<!-- ── Tabs ── -->
+<div class="tabs">
+  <button class="tbtn active" onclick="tab('ov',this)">📊 Tổng Quan</button>
+  <button class="tbtn" onclick="tab('mk',this)">📣 Marketing / ADS</button>
+  <button class="tbtn" onclick="tab('sl',this)">🛒 Kinh Doanh</button>
+</div>
+
+<div class="content">
+
+  <!-- Tab 1: Tổng quan -->
+  <div id="tp-ov" class="tp active">
+    <div id="ov-l" class="loading"><div class="spin"></div><p>Đang tải dữ liệu...</p></div>
+    <div id="ov-c" style="display:none">
+      <div class="sep">Doanh thu & Lợi nhuận</div>
+      <div class="kg" id="k1"></div>
+      <div class="sep">Quảng cáo & Hiệu quả</div>
+      <div class="kg" id="k2"></div>
+      <div class="cg">
+        <div class="cc"><div class="ct">Doanh thu & Lợi nhuận theo ngày (triệu ₫)</div><div class="cb"><canvas id="cr"></canvas></div></div>
+        <div class="cc"><div class="ct">Đơn hàng theo ngày</div><div class="cb"><canvas id="co1"></canvas></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab 2: Marketing -->
+  <div id="tp-mk" class="tp">
+    <div id="mk-l" class="loading"><div class="spin"></div><p>Đang tải dữ liệu ADS...</p></div>
+    <div id="mk-c" style="display:none">
+      <div class="sep">Tổng hợp ADS</div>
+      <div class="kg" id="ka1"></div>
+      <div class="kg" id="ka2"></div>
+      <div class="tc">
+        <div class="tt">
+          <div class="tn">Danh sách Chiến dịch</div>
+          <div class="ts" id="ci"></div>
+        </div>
+        <div id="ctbl"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab 3: Kinh doanh -->
+  <div id="tp-sl" class="tp">
+    <div id="sl-l" class="loading"><div class="spin"></div><p>Đang tải...</p></div>
+    <div id="sl-c" style="display:none">
+      <div class="sep">Đơn hàng & Khách hàng</div>
+      <div class="kg" id="ks"></div>
+      <div class="cg2">
+        <div class="cc"><div class="ct">Đơn chốt & Đơn hủy theo ngày</div><div class="cb"><canvas id="co2"></canvas></div></div>
+        <div class="cc"><div class="ct">Khách mới vs Khách cũ</div><div class="cb"><canvas id="ccu"></canvas></div></div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /content -->
+
+<script>
+// ── Auth guard ────────────────────────────────────────────
+const TOKEN = localStorage.getItem('hub_token');
+if (!TOKEN) window.location.href = '/';
+document.getElementById('uinfo').textContent = '👤 ' + (localStorage.getItem('hub_user') || '');
+
+function logout() {
+  localStorage.removeItem('hub_token');
+  localStorage.removeItem('hub_user');
+  window.location.href = '/';
+}
+
+// ── State ─────────────────────────────────────────────────
+let sData = null, aData = null, ch = {}, curTab = 'ov';
+
+// ── Dates ─────────────────────────────────────────────────
+function dateFmt(d) { return d.toLocaleDateString('fr-CA'); }
+function toUTC(s, end) {
+  const [y,m,d] = s.split('-').map(Number);
+  return new Date(Date.UTC(y,m-1,d,(end?23:0)-7,(end?59:0),(end?59:0))).toISOString();
+}
+
+// Init 30 ngày
+(function(){
+  const t = new Date(), f = new Date(t.getTime()-29*86400000);
+  document.getElementById('df').value = dateFmt(f);
+  document.getElementById('dt').value = dateFmt(t);
+  loadAll();
+})();
+
+function preset(days, btn) {
+  const t = new Date(), f = new Date(t.getTime()-(days-1)*86400000);
+  document.getElementById('df').value = dateFmt(f);
+  document.getElementById('dt').value = dateFmt(t);
+  document.querySelectorAll('.pbtn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  sData=null; aData=null; ch={};
+  loadAll();
+}
+function apply() { sData=null; aData=null; ch={}; loadAll(); }
+
+// ── Fetch ─────────────────────────────────────────────────
+async function loadAll() {
+  ['ov','mk','sl'].forEach(p=>{
+    document.getElementById(p+'-l').style.display='block';
+    document.getElementById(p+'-c').style.display='none';
+  });
+  const from = document.getElementById('df').value;
+  const to   = document.getElementById('dt').value;
+  const since = toUTC(from, false), until = toUTC(to, true);
+
+  try {
+    const [sr, ar] = await Promise.all([
+      apiFetch(`/api/stats?since=${encodeURIComponent(since)}&until=${encodeURIComponent(until)}`),
+      apiFetch('/api/campaigns')
+    ]);
+    sData = sr; aData = ar;
+    ch = {};
+    renderOv(); renderMk(); renderSl();
+  } catch(e) {
+    document.getElementById('ov-l').innerHTML = `<div class="ebox">⚠️ ${e.message}</div>`;
+  }
+}
+
+async function apiFetch(url) {
+  const r = await fetch(url, { headers: { Authorization: 'Bearer ' + TOKEN } });
+  if (r.status === 401) { logout(); throw new Error('Phiên đăng nhập hết hạn'); }
+  const d = await r.json();
+  if (!r.ok) throw new Error(d.error || `HTTP ${r.status}`);
+  return d;
+}
+
+// ── Tab switch ────────────────────────────────────────────
+function tab(id, btn) {
+  document.querySelectorAll('.tbtn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.tp').forEach(p=>p.classList.remove('active'));
+  document.getElementById('tp-'+id).classList.add('active');
+  curTab = id;
+}
+
+// ── Format helpers ────────────────────────────────────────
+function vnd(n,s=true){if(n==null)return'—';n=+n;if(isNaN(n))return'—';if(s){if(n>=1e9)return(n/1e9).toFixed(1)+'B ₫';if(n>=1e6)return(n/1e6).toFixed(1)+'M ₫';}return n.toLocaleString('vi-VN')+' ₫';}
+function num(n){return n==null?'—':(+n).toLocaleString('vi-VN');}
+function pct(n){return n==null?'—':(+n).toFixed(1)+'%';}
+function ros(n){return(!n||n===0)?'—':(+n).toFixed(2)+'x';}
+function dl(s){if(!s)return'';const p=s.split('-');return`${p[2]}/${p[1]}`;}
+
+function kpi(l,v,c,s=''){
+  return`<div class="kc ${c}"><div class="kl">${l}</div><div class="kv">${v}</div>${s?`<div class="ks">${s}</div>`:''}</div>`;
+}
+
+function mkChart(id,cfg){if(ch[id])ch[id].destroy();ch[id]=new Chart(document.getElementById(id),cfg);}
+
+// ── Overview ──────────────────────────────────────────────
+function renderOv(){
+  if(!sData||!aData)return;
+  const days=sData.data||[];
+  let rev=0,prf=0,ord=0,tot=0,nC=0,oC=0,can=0;
+  days.forEach(d=>{const r=d.result||{};rev+=r.revenue||0;prf+=r.profit||0;ord+=r.order_count||0;tot+=r.total_order_count||0;nC+=r.new_customer_count||0;oC+=r.old_customer_count||0;can+=r.canceled_order_count||0;});
+  const s=aData.summary||{};
+  const sp=s.spend||0, ao=s.order_created||0;
+  const roasV=sp>0?rev/sp:0, cpo=ao>0?sp/ao:0, cr=tot>0?ord/tot*100:0, pr=rev>0?prf/rev*100:0;
+
+  document.getElementById('k1').innerHTML=
+    kpi('Doanh Thu',vnd(rev),'b',`${days.length} ngày · Tỷ suất LN: ${pct(pr)}`)+
+    kpi('Lợi Nhuận',vnd(prf),'g',`Tỷ lệ: ${pct(pr)}`)+
+    kpi('Đơn Chốt',num(ord),'b',`Tạo mới: ${num(tot)} · Hủy: ${num(can)}`)+
+    kpi('Khách Hàng Mới',num(nC),'y',`KH cũ: ${num(oC)}`);
+
+  document.getElementById('k2').innerHTML=
+    kpi('Chi Phí ADS',vnd(sp),'r',`${num(s.impressions||0)} impressions`)+
+    kpi('ROAS',ros(roasV),roasV>=3?'g':roasV>=1?'y':'r','Doanh thu ÷ Chi phí ADS')+
+    kpi('CPO',vnd(cpo),'y',`${num(ao)} đơn từ ADS`)+
+    kpi('Tỷ Lệ Chốt',pct(cr),cr>=70?'g':'y',`${num(can)} đơn hủy`);
+
+  document.getElementById('ov-l').style.display='none';
+  document.getElementById('ov-c').style.display='block';
+
+  const lb=days.map(d=>dl(d['Time.day']));
+  mkChart('cr',{type:'line',data:{labels:lb,datasets:[
+    {label:'Doanh thu',data:days.map(d=>(d.result?.revenue||0)/1e6),borderColor:'#1a73e8',backgroundColor:'rgba(26,115,232,.08)',tension:.35,fill:true,pointRadius:2,borderWidth:2},
+    {label:'Lợi nhuận',data:days.map(d=>(d.result?.profit||0)/1e6),borderColor:'#34a853',backgroundColor:'rgba(52,168,83,.08)',tension:.35,fill:true,pointRadius:2,borderWidth:2}
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{font:{size:11}}}},scales:{x:{ticks:{font:{size:10},maxTicksLimit:12}},y:{ticks:{callback:v=>v+'M'}}}}});
+
+  mkChart('co1',{type:'bar',data:{labels:lb,datasets:[{label:'Đơn chốt',data:days.map(d=>d.result?.order_count||0),backgroundColor:'rgba(26,115,232,.75)',borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{font:{size:10},maxTicksLimit:12}}}}});
+}
+
+// ── Marketing ─────────────────────────────────────────────
+function renderMk(){
+  if(!aData)return;
+  const s=aData.summary||{}, camps=aData.data||[], tot=aData.total_entries||0;
+
+  document.getElementById('ka1').innerHTML=
+    kpi('Tổng Chi Phí',vnd(s.spend||0),'r',`${tot} chiến dịch tổng`)+
+    kpi('Impressions',num(s.impressions||0),'b',`CPM: ${vnd(s.cpm||0)}`)+
+    kpi('Clicks',num(s.clicks||0),'b',`CTR: ${pct(s.ctr||0)}`)+
+    kpi('CPC',vnd(s.cpc||0),'y','Chi phí mỗi click');
+
+  const on=camps.filter(c=>c.effective_status==='ACTIVE').length;
+  document.getElementById('ka2').innerHTML=
+    kpi('Orders (ADS)',num(s.order_created||0),'g','Đơn từ quảng cáo')+
+    kpi('CPO Tổng',vnd((s.order_created&&s.spend)?s.spend/s.order_created:0),'y','Chi phí / Đơn ADS')+
+    kpi('Đang Chạy',num(on),'g',`ACTIVE (trong ${camps.length} hiển thị)`)+
+    kpi('Tạm Dừng',num(camps.length-on),'r','PAUSED / OFF');
+
+  document.getElementById('ci').textContent=`Tổng ${tot} chiến dịch — hiển thị ${camps.length}`;
+
+  const rows=camps.map(c=>{
+    const i=c.insights||{};
+    const badge=c.effective_status==='ACTIVE'?'<span class="b0 bon">ACTIVE</span>':'<span class="b0 bof">PAUSED</span>';
+    const roasColor=(i.result_roas||0)>=3?'#34a853':(i.result_roas||0)>=1?'#f08700':'#ea4335';
+    return`<tr>
+      <td>${badge}</td>
+      <td class="nm" title="${c.name}">${c.name}</td>
+      <td style="font-size:11px;color:#5f6368">${c.ad_account?.name||'—'}</td>
+      <td class="r">${vnd(i.spend)}</td>
+      <td class="r">${num(i.impressions)}</td>
+      <td class="r">${i.ctr?i.ctr.toFixed(2)+'%':'—'}</td>
+      <td class="r">${vnd(i.cpc)}</td>
+      <td class="r" style="color:${roasColor};font-weight:600">${ros(i.result_roas)}</td>
+      <td class="r">${num(i.order_created)}</td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('ctbl').innerHTML=`<table class="dt"><thead><tr>
+    <th>Status</th><th>Chiến dịch</th><th>Tài khoản</th>
+    <th class="r">Chi phí</th><th class="r">Impressions</th>
+    <th class="r">CTR</th><th class="r">CPC</th><th class="r">ROAS</th><th class="r">Đơn</th>
+  </tr></thead><tbody>${rows}</tbody></table>`;
+
+  document.getElementById('mk-l').style.display='none';
+  document.getElementById('mk-c').style.display='block';
+}
+
+// ── Sales ─────────────────────────────────────────────────
+function renderSl(){
+  if(!sData)return;
+  const days=sData.data||[];
+  let tot=0,ord=0,can=0,nC=0,oC=0,rev=0;
+  days.forEach(d=>{const r=d.result||{};tot+=r.total_order_count||0;ord+=r.order_count||0;can+=r.canceled_order_count||0;nC+=r.new_customer_count||0;oC+=r.old_customer_count||0;rev+=r.revenue||0;});
+  const cr=tot>0?ord/tot*100:0, avg=ord>0?rev/ord:0, ret=(nC+oC)>0?oC/(nC+oC)*100:0;
+
+  document.getElementById('ks').innerHTML=
+    kpi('Đơn Tạo Mới',num(tot),'b',`${days.length} ngày`)+
+    kpi('Đơn Chốt',num(ord),'g',`Hủy: ${num(can)}`)+
+    kpi('Tỷ Lệ Chốt',pct(cr),cr>=70?'g':'y',`${num(can)} đơn hủy`)+
+    kpi('GTTB / Đơn',vnd(avg),'b',`KH cũ: ${pct(ret)} tổng KH`);
+
+  document.getElementById('sl-l').style.display='none';
+  document.getElementById('sl-c').style.display='block';
+
+  const lb=days.map(d=>dl(d['Time.day']));
+  mkChart('co2',{type:'bar',data:{labels:lb,datasets:[
+    {label:'Đơn chốt',data:days.map(d=>d.result?.order_count||0),backgroundColor:'rgba(26,115,232,.75)',borderRadius:3},
+    {label:'Đơn hủy',data:days.map(d=>d.result?.canceled_order_count||0),backgroundColor:'rgba(234,67,53,.65)',borderRadius:3}
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{font:{size:11}}}},scales:{x:{ticks:{font:{size:10},maxTicksLimit:12}}}}});
+
+  mkChart('ccu',{type:'bar',data:{labels:lb,datasets:[
+    {label:'KH mới',data:days.map(d=>d.result?.new_customer_count||0),backgroundColor:'rgba(52,168,83,.75)',borderRadius:3},
+    {label:'KH cũ',data:days.map(d=>d.result?.old_customer_count||0),backgroundColor:'rgba(251,188,4,.75)',borderRadius:3}
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{font:{size:11}}}},scales:{x:{ticks:{font:{size:10},maxTicksLimit:12}},y:{stacked:true}}}});
+}
+</script>
+</body>
+</html>
